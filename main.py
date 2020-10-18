@@ -30,9 +30,9 @@ def parser():
         ('Type', [typ]),
         ('Id', [id]),
         ('LitInt', [litint]),
-        ('Plus', [expr, ' + ', expr]),
-        ('Minus', [expr, ' - ', expr]),
-        ('Neg', ['-', expr]),
+        ('Plus', [expr, ' \+ ', expr]),
+        ('Minus', [expr, ' \- ', expr]),
+        ('Neg', ['\-', expr]),
     ]
 
     rules = []
@@ -91,7 +91,7 @@ def parse_expr(parser, line):
                 return minus(parser, c)
             else:
                 raise Exception('Bad match: ' + rule.name)
-    raise Exception('No match: ' + line)
+    raise Exception('No match: "{}"'.format(line))
 
 def id(cap):
     s = cap.group(1)
@@ -116,13 +116,13 @@ def minus(cap):
     return abs.Minus(expr1, expr2)
 
 def process(x):
-    if x == '':
+    if x == '\n':
         return None
     return Line(content=x)
 
 def preprocessor(s):
     lines = s.readlines()
-    return list(map(process, lines))
+    return list(filter(lambda x: x != None, map(process, lines)))
 
 import dataclasses, json
 
