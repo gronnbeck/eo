@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from typing import List
 
 import abs
+import env
 
 @dataclass
 class Line:
@@ -19,7 +20,7 @@ class Parser:
     rules: List[ParseRule]
 
 def parser():
-    id = '([a-z]+)'
+    id = '([a-z]{1}[a-z0-9]*)'
     typ = '([A-Z]{1}[a-z]*)'
     litint = '([0-9]+)'
     expr = '(.*)'
@@ -99,7 +100,7 @@ def id(cap):
 
 def litint(cap):
     i = int(cap.group(1))
-    return abs.LitInt(1)
+    return abs.LitInt(i)
 
 def neg(parser, cap):
     expr = parse_expr(parser, cap.group(1))
@@ -110,7 +111,7 @@ def plus(parser, cap):
     expr2 = parse_expr(parser, cap.group(2))
     return abs.Plus(expr1, expr2)
 
-def minus(cap):
+def minus(parser, cap):
     expr1 = parse_expr(parser, cap.group(1))
     expr2 = parse_expr(parser, cap.group(2))
     return abs.Minus(expr1, expr2)
@@ -143,6 +144,11 @@ def main():
     lines = preprocessor(s)
     stms = parse(p, lines)
     print('Parsed: ' + json.dumps(stms, cls=EnhancedJSONEncoder))
+
+    e = env.eval_new()
+    for stm in stms:
+        env.eval_exec_stm(e, stm)
+    env.eval_print_env(e)
 
 if __name__ == '__main__':
     main()
